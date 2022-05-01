@@ -18,14 +18,30 @@ const axios = require("axios");
 
 
 // *********************************************************** //
+//  Loading models
+// *********************************************************** //
+const ToDoItem = require("./models/ToDoItem")
+const Player = require('./models/Player')
+const Team = require('./models/Team')
+
+
+// *********************************************************** //
+//  Loading JSON datasets
+// *********************************************************** //
+const players = require('./public/data/players.json')
+
+
+// *********************************************************** //
 //  Connecting to the database
 // *********************************************************** //
 
 const mongoose = require( 'mongoose' );
-const mongodb_URI = 'mongodb://localhost:27017/cs103a'
+const mongodb_URI = 'mongodb+srv://cs_sj:BrandeisSpr22@cluster0.kgugl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 //const mongodb_URI = 'mongodb+srv://cs_sj:BrandeisSpr22@cluster0.kgugl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 
 mongoose.connect( mongodb_URI, { useNewUrlParser: true } );
+mongoose.set('useFindAndModify', false); 
+mongoose.set('useCreateIndex', true);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {console.log("we are connected!!!")});
@@ -56,7 +72,7 @@ app.use(layouts);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.urlencoded({ extended: false }));
 
 // Here we specify that static files will be in the public folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -76,7 +92,8 @@ app.use(
 
 
 // here is the code which handles all /login /signin /logout routes
-const auth = require('./routes/auth')
+const auth = require('./routes/auth');
+const { deflateSync } = require("zlib");
 app.use(auth)
 
 // middleware to test is the user is logged in, and if not, send them to the login page
@@ -98,15 +115,97 @@ app.get("/about", (req, res, next) => {
   res.render("about");
 });
 
-app.get("/demopage", (req, res, next) => {
-  res.render("demo");
-});
+/*
+    ToDoList routes
+*/
+app.get('/todo',
+  isLoggedIn,   // redirect to /login if user is not logged in
+  async (req,res,next) => {
+    try{
+      let userId = res.locals.user._id;  // get the user's id
+      let items = await ToDoItem.find({userId:userId}); // lookup the user's todo items
+      res.locals.items = items;  //make the items available in the view
+      res.render("toDo");  // render to the toDo page
+    } catch (e){
+      next(e);
+    }
+  }
+  )
 
-app.get("/sandbox", 
-  (req, res, next) => {
-        res.render("sandbox");
+  app.post('/todo/add',
+  isLoggedIn,
+  async (req,res,next) => {
+    try{
+      const {title,description} = req.body; // get title and description from the body
+      const userId = res.locals.user._id; // get the user's id
+      const createdAt = new Date(); // get the current date/time
+      let data = {title, description, userId, createdAt,} // create the data object
+      let item = new ToDoItem(data) // create the database object (and test the types are correct)
+      await item.save() // save the todo item in the database
+      res.redirect('/todo')  // go back to the todo page
+    } catch (e){
+      next(e);
+    }
+  }
+  )
+
+  app.get("/todo/delete/:itemId",
+    isLoggedIn,
+    async (req,res,next) => {
+      try{
+        const itemId=req.params.itemId; // get the id of the item to delete
+        await ToDoItem.deleteOne({_id:itemId}) // remove that item from the database
+        res.redirect('/todo') // go back to the todo page
+      } catch (e){
+        next(e);
       }
-);
+    }
+  )
+
+  app.get("/todo/completed/:value/:itemId",
+  isLoggedIn,
+  async (req,res,next) => {
+    try{
+      const itemId=req.params.itemId; // get the id of the item to delete
+      const completed = req.params.value=='true';
+      await ToDoItem.findByIdAndUpdate(itemId,{completed}) // remove that item from the database
+      res.redirect('/todo') // go back to the todo page
+    } catch (e){
+      next(e);
+    }
+  }
+)
+
+/* ************************
+  Loading (or reloading) the data into a collection
+   ************************ */
+// this route loads in the courses into the Course collection
+// or updates the courses if it is not a new collection
+
+app.get('/upsertDB',
+  async (req,res,next) => {
+    //await Course.deleteMany({})
+    for (player of players){
+      const {firstName,lastName,playerId,jobId}=player;
+      await Player.findOneAndUpdate({firstName,lastName,playerId,jobId},player,{upsert:true})
+    }
+    const out = await Player.find({}).count();
+    res.send("data uploaded: "+out)
+  }
+)
+
+
+app.post('/players/byName',
+  // show list of players by first name
+  async (req,res,next) => {
+    const {firstName} = req.body;
+    const courses = await Player.find({firstName:firstName})
+    
+    res.locals.players = players
+    //res.json(courses)
+    res.render('playerlist')
+  }
+)
 
 
 
@@ -126,7 +225,57 @@ app.use(function(err, req, res, next) {
   res.render("error");
 });
 
+app.use(isLoggedIn)
 
+app.get('/addPlayer/:playerId',
+  // add a player to the user's team
+  async (req,res,next) => {
+    try {
+      const playerId = req.params.playerId
+      const userId = res.locals.user._id
+      // check to make sure it's not already loaded
+      const lookup = await Team.find({playerId,userId})
+      if (lookup.length==0){
+        const schedule = new Team({playerId,userId})
+        await schedule.save()
+      }
+      res.redirect('/team/show')
+    } catch(e){
+      next(e)
+    }
+  })
+
+app.get('/team/show',
+  // show the current user's team
+  async (req,res,next) => {
+    try{
+      const userId = res.locals.user._id;
+      const courseIds = 
+         (await Team.find({userId}))
+                        .sort(x => x.teamId)
+                        .map(x => x.playerId)
+      res.locals.players = await Player.find({_id:{$in: playerIds}})
+      res.render('team')
+    } catch(e){
+      next(e)
+    }
+  }
+)
+
+app.get('/team/remove/:playerId',
+  // remove a player from the user's team
+  async (req,res,next) => {
+    try {
+      await Team.remove(
+                {userId:res.locals.user._id,
+                 playerId:req.params.playerId})
+      res.redirect('/team/show')
+
+    } catch(e){
+      next(e)
+    }
+  }
+)
 // *********************************************************** //
 //  Starting up the server!
 // *********************************************************** //
