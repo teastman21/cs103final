@@ -1,0 +1,37 @@
+<div class="bg-light m-5 p-2 border border-primary border-2">
+    <div class="">
+        <span>
+            <%= player.firstName %> 
+            <%= player.lastName %> 
+            <%= player.teamId %>
+        </span>
+        <strong><%= player.name %></strong>
+
+        
+    </div>
+    <div class="mb-1">
+        <%=course.playerId %>
+    </div>
+    <div><a href="/addPlayer/<%= player['_id'] %>">(add to team)</a></div>
+    <div class="mb-1">
+       First Name: <%=player.firstName %>,
+       Last Name: <%=player.lastName %>,
+       teamId: <%= player.teamId %>
+       <br>
+       playerId: <%=player.playerId%>
+    </div>
+    <div class="">
+        <em><%=player.firstName %></em>
+    </div>
+    <div class="p-3">
+        <%=player.description %>
+    </div>
+
+</div>
+
+<hr>
+
+<pre>
+    <%= JSON.stringify(player,null,5) %>
+</pre>
+-->
