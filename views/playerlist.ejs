@@ -1,0 +1,45 @@
+<h1>The players are</h1>
+Here we want a list with player name, player id, and team id
+<hr>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Player ID</th>
+            <th>Team ID</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+    <% for (player of players) {
+        const first = player['firstName'];
+        const last = player['lastName'];
+        const playerid = player['playerId'];
+        const teamid = player['teamId'];
+         %>
+      <tr class="mb-2"> 
+        <td>
+            <strong><%= player.name %></strong>
+        </td>
+
+        <td>
+            <%= last%>
+        </td>
+
+        <td>
+          <%= playerid%>
+        </td>
+       
+        <td>
+          <%= first%>
+        </td>
+    </tr>
+    <% } %>
+    </tbody>
+</table>
+
+<pre>
+    <!-- 
+        <%= JSON.stringify(courses,null,5) %> 
+    -->
+</pre>
