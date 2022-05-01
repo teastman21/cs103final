@@ -1,10 +1,23 @@
 
 
+
     <div class="jumbotron">
-        <h1>Local Authentication Demo</h1>
-        <p>Demonstrating Node/Express features</p>
+        <h1>PA03: Fantasy Basketball Team </h1>
+        <p></p>
     </div>
+
+    <p class="p-3 m-3 border border-primary bg-light">
+        Draft top NBA players to make a fantasy basketball team for competition with other teams!
+        Search by player name to find your pick!
+    </p>
     
-    LoggedIn: <%= loggedIn %>
-
-
+    <% if (true || loggedIn) {%>  
+        <form method="post" action="/players/byfirstName">
+            Show Players by firstName: 
+              <input type="text" name="firstName" 
+                     placeholder="e.g. Steven">
+            <input type="submit">
+        </form>
+        <br>
+        <a href="/team/show">Show Team</a>
+    <% } %>
