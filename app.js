@@ -199,7 +199,7 @@ app.post('/players/byName',
   // show list of players by first name
   async (req,res,next) => {
     const {firstName} = req.body;
-    const courses = await Player.find({firstName:firstName})
+    const players = await Player.find({firstName:firstName})
     
     res.locals.players = players
     //res.json(courses)
