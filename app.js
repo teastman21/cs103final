@@ -236,8 +236,8 @@ app.get('/addPlayer/:playerId',
       // check to make sure it's not already loaded
       const lookup = await Team.find({playerId,userId})
       if (lookup.length==0){
-        const schedule = new Team({playerId,userId})
-        await schedule.save()
+        const team = new Team({playerId,userId})
+        await team.save()
       }
       res.redirect('/team/show')
     } catch(e){
