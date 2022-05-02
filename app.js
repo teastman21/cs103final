@@ -250,7 +250,7 @@ app.get('/team/show',
   async (req,res,next) => {
     try{
       const userId = res.locals.user._id;
-      const courseIds = 
+      const playerIDs = 
          (await Team.find({userId}))
                         .sort(x => x.teamId)
                         .map(x => x.playerId)
