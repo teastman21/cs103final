@@ -1,0 +1,68 @@
+<% if (players.length==0){%>
+    There are no players currently on your team.
+  
+  <% } else  if (players==null) { %>
+  
+    There are no players currently on your team.
+  
+  <% } else if (team.length>0) { %>
+  
+      <h2 class="mt-5">Players on your team: </h2>
+  
+      <div class="d-flex flex-wrap  overflow-scroll">
+          <% for (player of players) {%>
+              <div class="p-3 m-3 border border-danger bg-light" style="max-width: 30vw;">
+                  
+                  <br> 
+                  <a style="color: red; text-decoration: none;" href="/team/remove/<%= player._id %>"> 
+                   X
+                  </a>
+                  <div style="font-weight: 600; ">
+                    <%= player.name %>
+                  </div>
+                  <hr>
+                  <div class="d-flex flex-wrap  overflow-wrap">
+                    <div class="p-1 m-1">
+                        <%= player['firstName'] %>
+                        <%= player['lastName'] %>
+                    </div>
+                    <div class="p-1 m-1">
+                        playerID:  <%= player.playerId %>
+                    <div class="p-1 m-1"> 
+                        <%= player.firstName %> will be your player! 
+                    </div>
+                    <div class="p-1 m-1"> 
+                        The playerID for your player will be: 
+                    </div>
+                    <div class="p-1 m-1"> 
+                        <%= player.playerId%>
+                    </div>
+                  </div>
+                  
+                  
+              </div>
+          <% }%>
+          </div>
+  
+      <hr>
+  <% } %>
+
+
+<!--
+<ul>
+    <% for (player of players){%>
+        <li> 
+            <a href="/team/remove/<%= player._id %>">X</a>
+            <%= player['firstName'] %>
+            <%= player['lastName'] %>
+            
+        </li>
+    <% } %>
+</ul>
+-->
+
+<!--
+    <pre>
+        <%= JSON.stringify(players,null,5) %>
+    </pre>
+-->
