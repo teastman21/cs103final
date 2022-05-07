@@ -179,8 +179,8 @@ app.get('/todo',
 /* ************************
   Loading (or reloading) the data into a collection
    ************************ */
-// this route loads in the courses into the Course collection
-// or updates the courses if it is not a new collection
+// this route loads in the players into the team collection
+// or updates the players if it is not a new collection
 
 app.get('/upsertDB',
   async (req,res,next) => {
@@ -195,6 +195,8 @@ app.get('/upsertDB',
 )
 
 
+//TE this doesn't work if anything is entered into search bar. if nothing is entered into searchbar, it shows list of all the players, but "Adam" doesnt show
+//list of players named adam
 app.post('/players/byName',
   // show list of players by first name
   async (req,res,next) => {
@@ -245,6 +247,7 @@ app.get('/addPlayer/:playerId',
     }
   })
 
+//TE not sure if this works yet because i havent been able to add a player to a team
 app.get('/team/show',
   // show the current user's team
   async (req,res,next) => {
