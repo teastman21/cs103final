@@ -10,4 +10,4 @@ var courseSchema = Schema( {
     teamId: Number,
 } );
 
-module.exports = mongoose.model( 'Course', courseSchema );
+module.exports = mongoose.model( 'Player', courseSchema );
