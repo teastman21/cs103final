@@ -203,7 +203,7 @@ app.post('/players/byName',
     const {firstName} = req.body;
     const player = await Player.find({firstName:firstName})
     
-    res.locals.players = players
+    res.locals.players = player
     //res.json(courses)
     res.render('playerlist')
   }
