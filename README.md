@@ -3,6 +3,9 @@
 This is a starter project which has a simple authentication module 
 and provides access to a mongoose database in the cloud.
 
+## Link to video describing project
+
+
 ## Installation
 Download the project from github and download nodejs and npm from https://nodejs.org
 and cd into the folder
